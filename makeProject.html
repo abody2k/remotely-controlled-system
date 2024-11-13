@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Making project</title>
+    <link rel="stylesheet" href="create.css">
+</head>
+
+<body>
+    <script type="module" src="./jquery-3.6.0.js"></script>
+    <div id="title">Create your group porject</div>
+    <input id="pn" class="input" type="text" placeholder="Project's name">
+    <div>
+        <input type="text" class="inputN" id="name" placeholder="person's name">
+        <div style="display: inline-block;position: relative;left: 7px;font-family: 'Jua';top: 7px;" id="add">+</div>
+    </div>
+
+    <div id="list">
+        <div id="listItem" class="hide">
+            <div class="names">
+                <div
+                    style="display: inline-block;text-align: center;width: 90%;white-space: nowrap;text-overflow: ellipsis;overflow: hidden;">
+                    ddduuuuuuuuuuuuuuuuuuuuuuuuuuughghghghddd</div>
+                <div style="display: inline-block;">-</div>
+
+            </div>
+            <input type="file" multiple style="width: 18%;">
+        </div>
+
+    </div>
+    <div id="btn">Create Project</div>
+
+    <div style="width:10%;margin: auto; background-image: linear-gradient(to bottom, #000000, #151515, #242424, #323232, #424242);height: 20px; border-radius: 14px;border:1px solid rgb(70, 70, 70)">
+    <div id="progress" style="position: relative;top: 0%; background: rgb(0,37,255);
+    background: linear-gradient(90deg, rgba(0,37,255,1) 0%, rgba(0,255,224,1) 100%); 
+        overflow: visible;width: 0%;height: 20px;color: white;border-radius: 14px;">
+    </div>
+</div>
+    <script>
+        const item = document.getElementById("listItem");
+        const progress = document.getElementById("progress");
+        document.getElementById("name").onkeydown = (e) => {
+            // console.log(e.key=="Enter");
+            document.getElementById("add").className = "anim";
+            if (e.key == "Enter" && e.target.value.length > 0) {
+
+                var newNode = item.cloneNode(true);
+                newNode.className = "";
+                newNode.children[0].children[0].innerText = e.target.value;
+                newNode.children[0].children[1].onclick = () => {
+                    newNode.remove()
+                }
+                newNode.children[1].onchange = (e) => {
+                    console.log(e.files);
+                }
+
+                document.getElementById("list").append(newNode);
+
+            }
+        }
+
+        document.getElementById("btn").onclick = () => {
+            if (document.getElementById("pn").value.length >= 2 && document.getElementById("list").children.length != 0) {
+                ajax("/create", {
+                    projectName: document.getElementById("pn").value,
+                    people: [...document.getElementById("list").children].map(x => x.children[0].children[0].innerText).slice(1)
+
+                }, (e) => {
+
+
+                    var peopleImages = [...document.getElementById("list").children].filter(x => x.children[1].files.length > 0).map(
+                        x => {
+                            return {
+                                name: x.children[0].children[0].innerText,
+                                images: x.children[1].files
+                            }
+                        });
+                    
+                        progress.style.width="0%";
+                        var counter =0;
+                    peopleImages.forEach(person => {
+                        [...person.images].forEach(image => {
+                            const reader = new FileReader();
+                            reader.onload = function () {
+                                const bytes = new Uint8Array(this.result);
+                                // console.log(bytes);
+                                ajax("/append",{person:person,name:image.name,image:bytes},(e)=>{
+                                    counter++;
+ 
+                                    console.log(e);
+                                    // console.log((peopleImages.map(x=>[...x.images].length).reduce((a,b)=>a+b)));
+                                    progress.style.width=(100*counter/(peopleImages.map(x=>[...x.images].length).reduce((a,b)=>a+b)))+"%";
+                                    if(progress.style.width=="100%"){
+                                        ajax("/train",{"nodata":""},()=>{
+
+                                            window.location.href="/";
+                                        });
+                                    }
+                                })
+
+                            };
+                            reader.readAsArrayBuffer(image);
+                        })
+                    })
+                    console.log(peopleImages);
+                })
+            }
+
+        };
+
+
+
+        function ajax(url, data, response) {
+
+            // var request = new XMLHttpRequest();
+            // request.setRequestHeader("ContentType","application/json"
+            $.ajax(
+                {
+                    url: url,
+                    method: "post",
+                    contentType: "application/json",
+                    data: JSON.stringify(data),
+                    success: (e) => {
+                        response(e)
+                    }
+                }
+            )
+        }
+    </script>
+</body>
+
+</html>

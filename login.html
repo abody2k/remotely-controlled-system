@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head> 
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Logging in</title>
+</head>
+<style>
+  .margin{
+    width: 70%;
+    margin: auto;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40px;
+    justify-content: center;
+
+  }  
+  video{
+    border: 1px solid rgb(243, 243, 243);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    box-shadow: 2px 2px 12px rgb(143, 143, 143);
+  }
+
+</style>
+<body>
+  <div class="margin">
+    <video onplay="onPlay(this)" id="inputVideo" autoplay muted></video>
+    <!-- <canvas id="overlay" /> -->
+  </div> 
+  <div id="id" style="text-align: center;    background: rgb(9, 9, 121);
+  background: linear-gradient(90deg, rgba(9, 9, 121, 1) 0%, rgba(0, 212, 255, 1) 100%);
+  /* font-size: 1.9vw; */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;font-size: 32px; "> Your identity is undefined</div>
+  <script src="./face-api.min.js"></script>
+  <!-- <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" -->
+  <script src="/jquery-3.6.0.js"></script>
+  <script>
+    var constraints = { audio: true, video: { width: 600, height: 600 } };
+
+
+
+    $(document).ready(function () {
+      run()
+    })
+
+    async function run() {
+      // load the models
+      await faceapi.loadMtcnnModel('./models/')
+      await faceapi.loadFaceLandmarkModel
+        ('./models/')
+      await faceapi.loadFaceRecognitionModel('./models/')
+
+      // try to access users webcam and stream the images
+      // to the video element
+      // const videoEl = document.getElementById('inputVideo')
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then(function (mediaStream) {
+          var video = document.querySelector('#inputVideo');
+          video.srcObject = mediaStream;
+          video.onloadedmetadata = function (e) {
+            video.play();
+          };
+        })
+        .catch(function (err) { console.log(err.name + ": " + err.message); });
+
+
+    }
+
+
+
+    async function onPlay(videoEl) {
+      const mtcnnForwardParams = {
+        // limiting the search space to larger faces for webcam detection
+        minFaceSize: 100
+      }
+
+      const mtcnnResults = await faceapi.mtcnn(document.getElementById('inputVideo'), mtcnnForwardParams)
+      const options = new faceapi.MtcnnOptions(mtcnnForwardParams)
+      const input = document.getElementById('inputVideo')
+      const fullFaceDescriptions = await faceapi.detectAllFaces(input, options).withFaceLandmarks().withFaceDescriptors()
+      // console.log(fullFaceDescriptions);
+      if(fullFaceDescriptions.length>0)
+      ajax("/predict",fullFaceDescriptions,(e)=>{
+        document.getElementById("id").innerText="You are "+e._label;
+        if(e._label!="unknown")
+        window.location.href="/"
+        console.log(e);
+      })
+      setTimeout(() => onPlay(videoEl))
+    }
+
+    
+    function ajax(url, data, response) {
+
+// var request = new XMLHttpRequest();
+// request.setRequestHeader("ContentType","application/json"
+$.ajax(
+    {
+        url: url,
+        method: "post",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: (e) => {
+            response(e)
+        }
+    }
+)
+}
+// always check for errors at the end.
+  </script>
+</body>
+
+</html>
+
+<!-- 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>FaceAPI Live WebCam Demo</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, shrink-to-fit=yes">
+    <meta name="application-name" content="FaceAPI">
+    <meta name="keywords" content="FaceAPI">
+    <meta name="description" content="FaceAPI: AI-powered Face Detection, Description & Recognition for Browser and NodeJS using Tensorflow/JS; Author: Vladimir Mandic <https://github.com/vladmandic>">
+    <meta name="msapplication-tooltip" content="FaceAPI: AI-powered Face Detection, Description & Recognition for Browser and NodeJS using Tensorflow/JS; Author: Vladimir Mandic <https://github.com/vladmandic>">
+    <link rel="shortcut icon" href="../favicon.ico" type="image/x-icon">
+    <script src="./imgloader.js" type="module"></script>
+  </head>
+  <body style="font-family: monospace; background: black; color: white; font-size: 16px; line-height: 22px; margin: 0; overflow: hidden">
+    <video id="video" playsinline class="video"></video>
+    <canvas id="canvas" class="canvas" style="position: fixed; top: 0; left: 0; z-index: 10"></canvas>
+    <div id="log" style="overflow-y: scroll; height: 16.5rem"></div>
+  </body>
+</html> -->

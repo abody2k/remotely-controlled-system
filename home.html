@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+
+<style>
+  .brn {
+    padding: 12px;
+    color: rgb(255, 255, 255);
+    background-color: rgb(112, 112, 112);
+    /* border: 1px solid rgb(255, 148, 25); */
+    border-radius: 7px;
+    transition: box-shadow 1s;
+  }
+  #out{
+    padding: 7px;
+    background-color: black;
+    color: white; 
+    width: fit-content;
+    text-align: center;
+    border-radius: 7px;
+    cursor: pointer;
+    margin: 4px;
+    transition: 1s box-shadow;
+  }
+
+    #out:hover{
+
+      box-shadow: 2px 2px 10px rgb(212, 212, 212);
+    }
+  .brn:hover {
+    cursor: pointer;
+    box-shadow: 2px 2px 24px rgb(150, 150, 150);
+  }
+
+  .brnOn {
+    padding: 12px;
+    color: rgb(255, 255, 255);
+    background-color: rgb(197, 47, 36);
+    /* border: 1px solid rgb(255, 148, 25); */
+    border-radius: 7px;
+    transition: box-shadow 1s;
+  }
+
+  .brnOn:hover {
+    cursor: pointer;
+    box-shadow: 2px 2px 24px rgb(150, 150, 150);
+  }
+
+  body {
+    padding-top: 4px;
+    margin: 0;
+
+  }
+
+  #flex {
+    margin-top: 4vh;
+    padding: 4px;
+    display: flex;
+    gap: 2vw;
+    flex-wrap: wrap;
+    justify-content: center;
+    justify-items: center;
+    background-color: white;
+  }
+</style>
+
+<body>
+  <div id="out">Sign out</div>
+  <div
+    style="width: 100%;border-top-right-radius: 4vw;border-top-left-radius: 4vw;background-color: rgb(71, 166, 255);">
+    <div style="text-align: center;font-weight: bolder;margin: auto;padding: 7vw;color:white;">
+      Manging ports
+    </div>
+
+    <div id="flex">
+      <div class="brn" id="btn0">Port 4</div>
+      <div class="brn" id="btn1">Port 4</div>
+      <div class="brn" id="btn2">Read from IR Sensor</div>
+      <div class="brn" id="btn3">Counter</div>
+      <div class="brn" id="btn4">Port 5</div>
+      <div class="brn" id="btn5">Port 5</div>
+      <div class="brn" id="btn6">Port 5</div>
+      <div class="brn" id="btn7">Port 5</div>
+      <div class="brn" id="btn8">Port 5</div>
+      <div class="brn" id="btn9">Port 5</div>
+    </div>
+  </div>
+
+  <!-- <input type="file" id="img"> -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/jquery-3.6.0.js"></script>
+
+  <script type="module">
+    window.onload = () => {
+var ports ;
+      function ajax(url, data, response) {
+
+
+        $.ajax(
+          {
+            url: url,
+            method: "post",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: (e) => {
+              response(e)
+            }
+          }
+        )
+      }
+
+      document.getElementById("out").onclick = () => {
+        ajax("/signout",{},(e)=>{
+          window.location.href=e
+        });
+
+      }
+      const socket = io();
+      socket.on("init",(port)=>{
+        ports=port;
+        console.log(ports);
+        portsChanged();
+      });
+
+      [...Array(10).keys()].forEach(id=>{
+        document.getElementById("btn"+id).innerText="Port "+id;
+        document.getElementById("btn"+id).onclick = () => {
+        socket.emit("change", id)
+      }
+      })
+      socket.on("change",(port)=>{
+        console.log("btn"+port);
+        document.getElementById("btn"+port).className = document.getElementById("btn"+port).className == "brn" ? "brnOn" : "brn"
+
+      })
+      // document.getElementById("btn").onclick = () => {
+      //   document.getElementById("btn").className = document.getElementById("btn").className == "brn" ? "brnOn" : "brn"
+
+      //   socket.emit("change", "4")
+      // }
+
+
+      // document.getElementsByClassName("brn").forEach(element => {
+      // });
+
+      document.getElementById("img").onchange = () => {
+        const reader = new FileReader();
+        reader.onload = function () {
+          const bytes = new Uint8Array(this.result);
+          console.log(bytes);
+          socket.emit('img', bytes);
+          socket.emit('img2', document.getElementById("img").files[0]);
+        };
+        reader.readAsArrayBuffer(document.getElementById("img").files[0]);
+        // socket.emit("img", { image: document.getElementById("img").files[0] })
+      }
+
+
+
+      function portsChanged() {
+        let counter =0;
+        Object.values(ports).forEach(element => {
+
+          document.getElementById(`btn${counter}`).className=element.value == 0 ? "brn" : "brnOn";
+          counter++;
+        });
+      }
+
+      // var fingers = [0, 0, 0, 0, 0];
+      // const videoElement = document.getElementsByClassName('input_video')[0];
+      // const canvasElement = document.getElementsByClassName('output_canvas')[0];
+      // const canvasCtx = canvasElement.getContext('2d');
+
+      // function onResults(results) {
+      //   canvasCtx.save();
+      //   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      //   canvasCtx.drawImage(
+      //     results.image, 0, 0, canvasElement.width, canvasElement.height);
+      //   if (results.multiHandLandmarks) {
+      //     if (results.multiHandWorldLandmarks[0]) {
+      //       [1, 5, 9, 13, 17].forEach(finger => {
+      //         var x = results.multiHandWorldLandmarks[0].slice(finger, finger + 4).map(z => Math.abs(z.y));
+      //         var y = Array();
+      //         for (let i = 0; i < x.length - 1; i++) {
+      //           y.push(Number(x[i] < x[i + 1]));
+
+      //         }
+      //         fingers[Number.parseInt((finger - 1) / 4)] = y.reduce((a, b) => a + b) == 3 ? 1 : 0;
+      //         // x.reduce((z,z0,i)=>y.push(x[i]>x[i+1]))
+      //         socket.emit('change',(fingers));
+      //         console.log(y);
+      //         console.log(fingers);
+
+      //       })
+
+      //       // console.log(results.multiHandLandmarks[0][8].z < results.multiHandLandmarks[0][7].z && results.multiHandLandmarks[0][7].z < results.multiHandLandmarks[0][6].z && results.multiHandLandmarks[0][6].z < results.multiHandLandmarks[0][5].z ? "finger is up" : "");
+
+      //     }
+      //     //   console.log(results);
+
+      //     for (const landmarks of results.multiHandLandmarks) {
+      //       drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+      //         { color: '#00FF00', lineWidth: 5 });
+      //       drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+      //     }
+      //   }
+      //   // console.log(results.multiHandLandmarks);
+
+      //   canvasCtx.restore();
+      // }
+
+      // const hands = new Hands({
+      //   locateFile: (file) => {
+      //     console.log(`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`);
+      //     return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+      //   }
+      // });
+      // hands.setOptions({
+      //   maxNumHands: 2,
+      //   modelComplexity: 1,
+      //   minDetectionConfidence: 0.5,
+      //   minTrackingConfidence: 0.5
+      // });
+      // hands.onResults(onResults);
+
+      // const camera = new Camera(videoElement, {
+      //   onFrame: async () => {
+      //     await hands.send({ image: videoElement });
+      //   },
+      //   width: 1280,
+      //   height: 720
+      // });
+      // camera.start();
+    }
+  </script>
+</body>
+
+</html>

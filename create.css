@@ -1,0 +1,131 @@
+@font-face {
+    font-family: "Jua";
+    src: url("./Jua-Regular.ttf");
+
+}
+
+
+#title {
+    font-family: 'Jua';
+    font-size: 2vw;
+    text-align: center;
+    background: rgb(9, 9, 121);
+    background: linear-gradient(90deg, rgba(9, 9, 121, 1) 0%, rgba(0, 212, 255, 1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+
+}
+
+
+body {
+    display: flex;
+    flex-direction: column;
+    gap: 10vh;
+
+}
+
+
+.input {
+    background-color: rgb(235, 235, 235);
+    height: 4vh;
+    width: 30%;
+    font-size: 1.4vw;
+    margin: auto;
+    text-align: center;
+    border: 1px solid wheat;
+    box-shadow: 2px 2px 2px rgb(168, 167, 167);
+    font-family: 'Jua';
+    border-radius: 4px;
+    transition: 1s box-shadow;
+}
+
+.inputN {
+    background-color: rgb(235, 235, 235);
+    height: 4vh;
+    width: 20%;
+    font-size: 1.4vw;
+    text-align: center;
+    border: 1px solid wheat;
+    box-shadow: 2px 2px 2px rgb(168, 167, 167);
+    font-family: 'Jua';
+    border-radius: 4px;
+}
+
+.input:hover {
+    box-shadow: 2px 2px 7px rgb(168, 167, 167);
+
+}
+
+
+.names {
+    background: rgb(0, 70, 250);
+    background: linear-gradient(90deg, rgba(0, 70, 250, 0.53) 0%, rgba(0, 212, 255, 1) 100%);
+    font-family: 'Jua';
+    width: 79%;
+    display: inline-block;
+    color: white;
+    border-radius: 4px;
+
+}
+
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+
+    }
+
+    to {
+        transform: rotate(360deg);
+
+    }
+}
+
+#add {
+    cursor: pointer;
+    background: rgb(9, 9, 121);
+    background: linear-gradient(90deg, rgba(9, 9, 121, 1) 0%, rgba(0, 212, 255, 1) 100%);
+    font-size: 1.9vw;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; 
+
+}
+
+.anim {
+    animation: rotation 2s linear;
+
+}
+
+.hide {
+    display: none;
+}
+
+#list {
+    margin: 4px;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 30vh;
+    overflow: scroll;
+    border-radius: 4px;
+    box-shadow: 2px 2px 7px rgb(151, 151, 151);
+}
+
+
+#btn {
+    color: white;
+    text-align: center; font-family: 'Jua';
+    width: fit-content;
+    margin: auto;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+    background-image: linear-gradient(to bottom, #2fc8ea, #00bbf4, #00abfd, #009aff, #0085ff);
+}
+
+/* #add:hover{ 
+    transform:  rotate(360deg);  
+    cursor: pointer; 
+    color: red;
+} */

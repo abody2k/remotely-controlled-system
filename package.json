@@ -1,0 +1,25 @@
+{
+  "name": "hands",
+  "version": "1.0.0",
+  "description": "Dsp project to detect fingers and apply sum calculations depending on the input",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Team of Abdulrahman Muhsin Ali, Mustafa Ammar and Arwa Ammar",
+  "license": "ISC",
+  "dependencies": {
+    "@tensorflow/tfjs-core": "^3.17.0",
+    "@tensorflow/tfjs-node": "^3.17.0",
+    "@vladmandic/face-api": "^1.6.9",
+    "better-sqlite3": "^7.5.3",
+    "better-sqlite3-session-store": "0.0.3",
+    "canvas": "^2.9.1",
+    "express": "^4.18.1",
+    "express-session": "^1.17.3",
+    "face-api.js": "^0.22.2",
+    "jsdom": "^19.0.0",
+    "serialport": "^10.4.0",
+    "socket.io": "^4.5.0"
+  }
+}
